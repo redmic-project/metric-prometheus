@@ -1,0 +1,146 @@
+image: docker:stable
+
+stages:
+  - check-rules
+  - package
+  - test-package
+  - deploy
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+check-rules-non-master-branches:
+  stage: check-rules
+  script:
+    - check-rules.sh
+
+docker-build-commit-non-master-branches:
+  stage: package
+  only:
+    - branches
+  except:
+    - master
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
+    - docker push ${CI_REGISTRY_IMAGE}
+
+
+docker-build-commit-master-branch:
+  stage: package
+  image: docker:stable
+  only:
+    - master
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
+    - docker push ${CI_REGISTRY_IMAGE}
+
+container-scanning:
+  stage: test-package
+  image: docker:stable
+  allow_failure: true
+  only:
+    - branches
+  script:
+    - docker run -d --name db arminc/clair-db:latest
+    - docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:v2.0.1
+    - apk add -U wget ca-certificates
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+    - wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
+    - mv clair-scanner_linux_amd64 clair-scanner
+    - chmod +x clair-scanner
+    - touch clair-whitelist.yml
+    - >
+      ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-sast-container-report.json -l clair.log
+      -w clair-whitelist.yml ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} || true
+  artifacts:
+    paths: [gl-sast-container-report.json]
+
+deploy-dev:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    STACK: metric
+    STATUS_CHECK_DELAY: 60
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    UI_AUTH: ${DEV_UI_AUTH}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+    SLACK_URL: ${SLACK_URL}
+    SLACK_CHANNEL: ${DEV_SLACK_CHANNEL}
+    SLACK_USER: ${SLACK_USER}
+  script:
+    - create-nets.sh metric-net
+    - >
+      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+  environment:
+    name: dev
+    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
+  only:
+    - dev
+  when: manual
+
+deploy-supporting-branch:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    STACK: metric
+    STATUS_CHECK_DELAY: 60
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    UI_AUTH: ${DEV_UI_AUTH}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+    SLACK_URL: ${SLACK_URL}
+    SLACK_CHANNEL: ${DEV_SLACK_CHANNEL}
+    SLACK_USER: ${SLACK_USER}
+  script:
+    - create-nets.sh metric-net
+    - >
+      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+  environment:
+    name: dev
+    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
+  only:
+    - branches
+  except:
+    - master
+    - dev
+  when: manual
+
+deploy-pro:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: metric
+    STATUS_CHECK_DELAY: 60
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    UI_AUTH: ${PRO_UI_AUTH}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
+    SLACK_URL: ${SLACK_URL}
+    SLACK_CHANNEL: ${PRO_SLACK_CHANNEL}
+    SLACK_USER: ${SLACK_USER}
+  script:
+    - create-nets.sh metric-net
+    - >
+      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+  environment:
+    name: pro
+    url: https://prometheus.${PUBLIC_HOSTNAME}
+  only:
+    - master
+  when: manual

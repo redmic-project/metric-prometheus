@@ -1,0 +1,55 @@
+version: '3.5'
+
+services:
+  prometheus:
+    image: stefanprodan/swarmprom-prometheus:v2.2.0-rc.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=30d'
+    user: "0:0"
+    networks:
+      - metric-net
+      - traefik-net
+    environment:
+      - JOBS
+    volumes:
+      - prometheus:/prometheus
+    configs:
+      - source: node_rules
+        target: /etc/prometheus/swarm_node.rules.yml
+      - source: task_rules
+        target: /etc/prometheus/swarm_task.rules.yml
+      - source: job_rules
+        target: /etc/prometheus/swarm_job.rules.yml
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        traefik.port: "9090"
+        traefik.docker.network: traefik-net
+        traefik.frontend.auth.basic: ${UI_AUTH}
+        traefik.frontend.rule: Host:prometheus.${PUBLIC_HOSTNAME}
+        traefik.backend: prometheus
+      restart_policy:
+        delay: 1m
+        window: 3m
+
+networks:
+  metric-net:
+    external: true
+
+  traefik-net:
+    external: true
+
+configs:
+  node_rules:
+    file: ./rules/swarm_node.rules.yml
+
+  task_rules:
+    file: ./rules/swarm_task.rules.yml
+
+  job_rules:
+    file: ./rules/swarm_job.rules.yml
