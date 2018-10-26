@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for f in $(pwd)/rules/*.rules.yml
+for f in $(pwd)/deploy/rules/*.rules.yml
 do
 	if [ -e "$f" ]
 	then
