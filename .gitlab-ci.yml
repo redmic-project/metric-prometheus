@@ -93,6 +93,7 @@ deploy-supporting-branch:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: metric
     STATUS_CHECK_DELAY: 60
+    SERVICES_TO_CHECK: metric_prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
@@ -123,6 +124,7 @@ deploy-pro:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: metric
     STATUS_CHECK_DELAY: 60
+    SERVICES_TO_CHECK: metric_prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
