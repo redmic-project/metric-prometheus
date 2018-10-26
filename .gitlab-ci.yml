@@ -12,10 +12,10 @@ services:
 variables:
   DOCKER_DRIVER: overlay2
 
-check-rules-non-master-branches:
+check-rules:
   stage: check-rules
   script:
-    - check-rules.sh
+    - ./check-rules.sh
 
 docker-build-commit-non-master-branches:
   stage: package
@@ -31,7 +31,6 @@ docker-build-commit-non-master-branches:
 
 docker-build-commit-master-branch:
   stage: package
-  image: docker:stable
   only:
     - master
   script:
@@ -41,7 +40,6 @@ docker-build-commit-master-branch:
 
 container-scanning:
   stage: test-package
-  image: docker:stable
   allow_failure: true
   only:
     - branches
