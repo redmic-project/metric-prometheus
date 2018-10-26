@@ -69,6 +69,7 @@ deploy-dev:
     SERVICES_TO_CHECK: metric_prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
+    DEPLOY_DIR_NAME: deploy
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
@@ -97,6 +98,7 @@ deploy-supporting-branch:
     SERVICES_TO_CHECK: metric_prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
+    DEPLOY_DIR_NAME: deploy
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
@@ -128,6 +130,7 @@ deploy-pro:
     SERVICES_TO_CHECK: metric_prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
+    DEPLOY_DIR_NAME: deploy
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
