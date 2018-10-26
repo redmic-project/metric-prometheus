@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   prometheus:
-    image: stefanprodan/swarmprom-prometheus:v2.2.0-rc.0
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
