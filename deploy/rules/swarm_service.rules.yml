@@ -1,0 +1,12 @@
+groups:
+- name: /1/store/projects/vagrant/docker-swarm-vagrant/apps/swarmprom/prometheus/rules/swarm_service.rules.yml
+  rules:
+  - alert: service_in_restart_loop
+    expr: avg without(instance)(changes(process_start_time_seconds[1h]) > bool 3) > 0.1
+    for: 10m
+    labels:
+      severity: ticket
+    annotations:
+      description: The service '{{ $labels.label }}' has restarted more 3 times in last hour.
+      summary: The service '{{ $labels.label }}' has restarted more 3 times in last hour.
+
