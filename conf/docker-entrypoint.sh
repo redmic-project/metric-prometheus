@@ -40,7 +40,7 @@ do
   then
     filename=$( basename "${f}" )
     echo "- ${filename}"
-    echo '  - "${filename}"' >> /tmp/prometheus.yml
+    echo '  - "'${filename}'"' >> /tmp/prometheus.yml
   fi
 done
 
