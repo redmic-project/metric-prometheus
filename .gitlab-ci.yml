@@ -79,8 +79,9 @@ deploy-dev:
   script:
     - create-nets.sh metric-net
     - >
-      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
+      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -108,8 +109,9 @@ deploy-supporting-branch:
   script:
     - create-nets.sh metric-net
     - >
-      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
+      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -140,8 +142,9 @@ deploy-pro:
   script:
     - create-nets.sh metric-net
     - >
-      deploy.sh COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-      SLACK_URL=${SLACK_URL} SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
+      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
   environment:
     name: pro
     url: https://prometheus.${PUBLIC_HOSTNAME}
