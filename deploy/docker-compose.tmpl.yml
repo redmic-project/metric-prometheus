@@ -24,6 +24,8 @@ services:
         target: /etc/prometheus/swarm_task.rules.yml
       - source: job_rules
         target: /etc/prometheus/swarm_job.rules.yml
+      - source: service_rules
+        target: /etc/prometheus/swarm_service.rules.yml
     deploy:
       mode: replicated
       replicas: 1
@@ -47,9 +49,9 @@ networks:
 configs:
   node_rules:
     file: ./rules/swarm_node.rules.yml
-
   task_rules:
     file: ./rules/swarm_task.rules.yml
-
   job_rules:
     file: ./rules/swarm_job.rules.yml
+  service_rules:
+    file: ./rules/swarm_service.rules.yml
