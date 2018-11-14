@@ -10,3 +10,11 @@ groups:
       description: The service '{{ $labels.label }}' has restarted more 3 times in last hour.
       summary: The service '{{ $labels.label }}' has restarted more 3 times in last hour.
 
+  - alert: service_down
+    expr: up == 0
+    for: 5m
+    labels:
+      severity: severity
+    annotations:
+      description: Instance {{ $labels.instance }} down.
+      summary: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."

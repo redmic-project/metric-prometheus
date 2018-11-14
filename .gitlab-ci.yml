@@ -73,15 +73,11 @@ deploy-dev:
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-    SLACK_URL: ${SLACK_URL}
-    SLACK_CHANNEL: ${DEV_SLACK_CHANNEL}
-    SLACK_USER: ${SLACK_USER}
   script:
     - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
-      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -103,15 +99,11 @@ deploy-supporting-branch:
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-    SLACK_URL: ${SLACK_URL}
-    SLACK_CHANNEL: ${DEV_SLACK_CHANNEL}
-    SLACK_USER: ${SLACK_USER}
   script:
     - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
-      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -136,15 +128,11 @@ deploy-pro:
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-    SLACK_URL: ${SLACK_URL}
-    SLACK_CHANNEL: ${PRO_SLACK_CHANNEL}
-    SLACK_USER: ${SLACK_USER}
   script:
     - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} SLACK_URL=${SLACK_URL}
-      SLACK_CHANNEL=${SLACK_CHANNEL} SLACK_USER=${SLACK_USER}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
     url: https://prometheus.${PUBLIC_HOSTNAME}
