@@ -23,6 +23,15 @@ scrape_configs:
       type: 'A'
       port: 9323
 
+  - job_name: 'kafka'
+    dns_sd_configs:
+    - names:
+      - 'tasks.kf-1'
+      - 'tasks.kf-2'
+      - 'tasks.kf-3'
+      type: 'A'
+      port: 9999
+
   - job_name: 'cadvisor'
     dns_sd_configs:
     - names:
