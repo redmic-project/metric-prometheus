@@ -30,7 +30,7 @@ scrape_configs:
       - 'tasks.kf-2'
       - 'tasks.kf-3'
       type: 'A'
-      port: 9999
+      port: 9998
 
   - job_name: 'cadvisor'
     dns_sd_configs:
