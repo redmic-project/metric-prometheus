@@ -32,6 +32,15 @@ scrape_configs:
       type: 'A'
       port: 9998
 
+  - job_name: 'zookeeper'
+    dns_sd_configs:
+    - names:
+      - 'tasks.zk-1'
+      - 'tasks.zk-2'
+      - 'tasks.zk-3'
+      type: 'A'
+      port: 9998
+
   - job_name: 'cadvisor'
     dns_sd_configs:
     - names:
