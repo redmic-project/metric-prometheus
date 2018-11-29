@@ -95,7 +95,7 @@ deploy-supporting-branch-production:
     STATUS_CHECK_DELAY: 60
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
   script:
@@ -122,7 +122,7 @@ deploy-stable-branch-develop:
     STATUS_CHECK_DELAY: 60
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
