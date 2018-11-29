@@ -28,7 +28,6 @@ docker-build-commit-non-master-branches:
     - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
     - docker push ${CI_REGISTRY_IMAGE}
 
-
 docker-build-commit-master-branch:
   stage: package
   only:
@@ -59,43 +58,16 @@ container-scanning:
   artifacts:
     paths: [gl-sast-container-report.json]
 
-deploy-dev:
+deploy-supporting-branch-develop:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: metric
+    SERVICES_TO_CHECK: metric_prometheus
     STATUS_CHECK_DELAY: 60
-    SERVICE: prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    DEPLOY_DIR_NAME: deploy
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    UI_AUTH: ${DEV_UI_AUTH}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh metric-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-  environment:
-    name: dev
-    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - dev
-  when: manual
-
-deploy-supporting-branch:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: metric
-    STATUS_CHECK_DELAY: 60
-    SERVICE: prometheus
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    DEPLOY_DIR_NAME: deploy
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
@@ -111,20 +83,70 @@ deploy-supporting-branch:
     - branches
   except:
     - master
-    - dev
   when: manual
 
-deploy-pro:
+deploy-supporting-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: metric
+    SERVICES_TO_CHECK: metric_prometheus
     STATUS_CHECK_DELAY: 60
-    SERVICE: prometheus
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    DEPLOY_DIR_NAME: deploy
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    UI_AUTH: ${PRO_UI_AUTH}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
+  script:
+    - create-nets.sh metric-net
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+  environment:
+    name: pro
+    url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-stable-branch-develop:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    STACK: metric
+    SERVICES_TO_CHECK: metric_prometheus
+    STATUS_CHECK_DELAY: 60
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    UI_AUTH: ${DEV_UI_AUTH}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+  script:
+    - create-nets.sh metric-net
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+  environment:
+    name: dev
+    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
+  only:
+    - master
+  when: manual
+
+deploy-stable-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: metric
+    SERVICES_TO_CHECK: metric_prometheus
+    STATUS_CHECK_DELAY: 60
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
@@ -135,7 +157,7 @@ deploy-pro:
       UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
-    url: https://prometheus.${PUBLIC_HOSTNAME}
+    url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
   only:
     - master
   when: manual

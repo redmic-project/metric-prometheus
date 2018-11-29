@@ -30,14 +30,20 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.port: "9090"
         traefik.docker.network: traefik-net
-        traefik.frontend.auth.basic: ${UI_AUTH}
+        traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:prometheus.${PUBLIC_HOSTNAME}
         traefik.backend: prometheus
+        traefik.port: "9090"
       restart_policy:
         delay: 1m
         window: 3m
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          memory: 128M
 
 networks:
   metric-net:
@@ -49,9 +55,12 @@ networks:
 configs:
   node_rules:
     file: ./rules/swarm_node.rules.yml
+
   task_rules:
     file: ./rules/swarm_task.rules.yml
+
   job_rules:
     file: ./rules/swarm_job.rules.yml
+
   service_rules:
     file: ./rules/swarm_service.rules.yml

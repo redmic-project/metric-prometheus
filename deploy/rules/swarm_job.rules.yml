@@ -1,5 +1,5 @@
 groups:
-- name: /1/store/projects/vagrant/docker-swarm-vagrant/apps/swarmprom/prometheus/rules/swarm_job.rules.yml
+- name: swarm_job
   rules:
   - alert: backup_db_not_created
     expr: time() - backup_created_date_seconds{} > 86400
@@ -9,7 +9,7 @@ groups:
       description: Error creating backup for '{{ $labels.label }}' database.
       summary: Error creating backup for '{{ $labels.label }}' database.
 
-  - alert: certificate_renew_not_attemped
+  - alert: certificate_renew_not_attempted
     expr: time() - certificates_valid_date_seconds{} > 604800
     labels:
       severity: warning
