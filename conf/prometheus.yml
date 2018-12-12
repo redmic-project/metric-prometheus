@@ -47,17 +47,17 @@ scrape_configs:
   - job_name: 'zookeeper'
     dns_sd_configs:
     - names:
-        - 'confluent_zookeeper-1'
-        - 'confluent_zookeeper-2'
-        - 'confluent_zookeeper-3'
+        - 'tasks.zookeeper-1'
+        - 'tasks.zookeeper-2'
+        - 'tasks.zookeeper-3'
       type: 'A'
       port: 9998
 
   - job_name: 'kafka'
     dns_sd_configs:
     - names:
-        - 'confluent_kafka-1'
-        - 'confluent_kafka-2'
-        - 'confluent_kafka-3'
+        - 'tasks.kafka-1'
+        - 'tasks.kafka-2'
+        - 'tasks.kafka-3'
       type: 'A'
       port: 9998
