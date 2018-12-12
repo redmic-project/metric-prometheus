@@ -44,11 +44,20 @@ scrape_configs:
       type: 'A'
       port: 9091
 
+  - job_name: 'zookeeper'
+    dns_sd_configs:
+    - names:
+        - 'confluent_zookeeper-1'
+        - 'confluent_zookeeper-2'
+        - 'confluent_zookeeper-3'
+      type: 'A'
+      port: 9998
+
   - job_name: 'kafka'
     dns_sd_configs:
     - names:
-        - 'confluent_kf-1'
-        - 'confluent_kf-2'
-        - 'confluent_kf-3'
+        - 'confluent_kafka-1'
+        - 'confluent_kafka-2'
+        - 'confluent_kafka-3'
       type: 'A'
       port: 9998

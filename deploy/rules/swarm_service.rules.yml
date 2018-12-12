@@ -7,8 +7,8 @@ groups:
     labels:
       severity: warning
     annotations:
-      description: Service '{{ $labels.label }}' has been restarted 3 times in last hour.
-      summary: Service '{{ $labels.label }}' has been restarted 3 times in last hour.
+      description: Service '{{ $labels.job }}' has been restarted 3 times in last hour.
+      summary: Service '{{ $labels.job }}' has been restarted 3 times in last hour.
 
   - alert: service_down
     expr: up == 0
