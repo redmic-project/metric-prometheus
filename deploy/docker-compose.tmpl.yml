@@ -8,8 +8,8 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention=30d'
-    user: "0:0"
+      - '--storage.tsdb.retention=${STORAGE_TSDB_RETENTION}'
+    user: '0:0'
     networks:
       - metric-net
       - traefik-net
@@ -30,14 +30,13 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.docker.network: traefik-net
         traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:prometheus.${PUBLIC_HOSTNAME}
         traefik.backend: prometheus
-        traefik.port: "9090"
+        traefik.port: '9090'
       restart_policy:
-        delay: 1m
-        window: 3m
+        delay: 30s
+        window: 2m
       resources:
         limits:
           cpus: '1'
@@ -47,20 +46,27 @@ services:
 
 networks:
   metric-net:
-    external: true
+    name: ${METRIC_NET_NAME:-metric-net}
+    driver: overlay
+    attachable: ${METRIC_NET_ATTACHABLE:-true}
 
   traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
     external: true
 
 configs:
   node_rules:
+    name: ${NODE_RULES_NAME:-node_rules}
     file: ./rules/swarm_node.rules.yml
 
   task_rules:
+    name: ${TASK_RULES_NAME:-task_rules}
     file: ./rules/swarm_task.rules.yml
 
   job_rules:
+    name: ${JOB_RULES_NAME:-job_rules}
     file: ./rules/swarm_job.rules.yml
 
   service_rules:
+    name: ${SERVICE_RULES_NAME:-service_rules}
     file: ./rules/swarm_service.rules.yml

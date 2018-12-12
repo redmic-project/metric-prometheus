@@ -2,4 +2,4 @@ version: '3.5'
 
 volumes:
   prometheus:
-    name: prometheus-vol
+    name: ${PROMETHEUS_VOL_NAME:-prometheus-vol}

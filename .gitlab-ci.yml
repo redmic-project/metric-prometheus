@@ -1,16 +1,21 @@
-image: docker:stable
-
 stages:
   - check-rules
   - package
   - test-package
   - deploy
 
+image: docker:stable
+
 services:
   - docker:dind
 
 variables:
   DOCKER_DRIVER: overlay2
+  STACK: metric
+  SERVICES_TO_CHECK: metric_prometheus
+  STATUS_CHECK_DELAY: 60
+  IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+  IMAGE_TAG: ${CI_COMMIT_SHA}
 
 check-rules:
   stage: check-rules
@@ -63,16 +68,10 @@ deploy-supporting-branch-develop:
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: metric
-    SERVICES_TO_CHECK: metric_prometheus
-    STATUS_CHECK_DELAY: 60
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
     UI_AUTH: ${DEV_UI_AUTH}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
-    - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
@@ -85,21 +84,34 @@ deploy-supporting-branch-develop:
     - master
   when: manual
 
+deploy-stable-branch-develop:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    UI_AUTH: ${DEV_UI_AUTH}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+  script:
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+  environment:
+    name: dev
+    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
+  only:
+    - master
+  when: manual
+
 deploy-supporting-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: metric
-    SERVICES_TO_CHECK: metric_prometheus
-    STATUS_CHECK_DELAY: 60
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
   script:
-    - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
@@ -112,46 +124,15 @@ deploy-supporting-branch-production:
     - master
   when: manual
 
-deploy-stable-branch-develop:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: metric
-    SERVICES_TO_CHECK: metric_prometheus
-    STATUS_CHECK_DELAY: 60
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    UI_AUTH: ${DEV_UI_AUTH}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh metric-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-  environment:
-    name: dev
-    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - master
-  when: manual
-
 deploy-stable-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: metric
-    SERVICES_TO_CHECK: metric_prometheus
-    STATUS_CHECK_DELAY: 60
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     UI_AUTH: ${PRO_UI_AUTH}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
   script:
-    - create-nets.sh metric-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
