@@ -9,9 +9,9 @@ services:
 
 volumes:
   prometheus:
-    name: prometheus-vol
-    driver: "cloudstor:aws"
+    name: ${PROMETHEUS_VOL_NAME:-prometheus-vol}
+    driver: 'cloudstor:aws'
     driver_opts:
       backing: relocatable
-      size: 10
-      ebstype: gp2
+      size: ${PROMETHEUS_VOL_SIZE:-10}
+      ebstype: ${PROMETHEUS_VOL_EBS_TYPE:-gp2}
