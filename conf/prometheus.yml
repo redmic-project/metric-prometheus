@@ -61,3 +61,12 @@ scrape_configs:
         - 'tasks.kafka-3'
       type: 'A'
       port: 9998
+
+  - job_name: 'vernemq'
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    dns_sd_configs:
+    - names:
+        - 'tasks.vernemq'
+      type: 'A'
+      port: 8888
