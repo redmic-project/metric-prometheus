@@ -27,7 +27,7 @@ services:
       - source: service_rules
         target: /etc/prometheus/swarm_service.rules.yml
     healthcheck:
-      test: wget --spider http://localhost:9090
+      test: wget --spider -q http://localhost:9090
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,7 +41,7 @@ services:
         traefik.backend: prometheus
         traefik.port: '9090'
       restart_policy:
-        delay: 30s
+        delay: 10s
         window: 2m
       resources:
         limits:
@@ -61,10 +61,6 @@ networks:
     external: true
 
 configs:
-  node_rules:
-    name: ${NODE_RULES_NAME:-node_rules}
-    file: ./rules/swarm_node.rules.yml
-
   task_rules:
     name: ${TASK_RULES_NAME:-task_rules}
     file: ./rules/swarm_task.rules.yml

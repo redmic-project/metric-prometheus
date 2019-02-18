@@ -3,3 +3,8 @@ version: '3.5'
 volumes:
   prometheus:
     name: ${PROMETHEUS_VOL_NAME:-prometheus-vol}
+
+configs:
+  node_rules:
+    name: ${NODE_RULES_NAME:-node_rules}
+    file: ./rules/swarm_node.rules.dev.yml

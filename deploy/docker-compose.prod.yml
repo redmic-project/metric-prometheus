@@ -15,3 +15,8 @@ volumes:
       backing: relocatable
       size: ${PROMETHEUS_VOL_SIZE:-10}
       ebstype: ${PROMETHEUS_VOL_EBS_TYPE:-gp2}
+
+configs:
+  node_rules:
+    name: ${NODE_RULES_NAME:-node_rules}
+    file: ./rules/swarm_node.rules.prod.yml
