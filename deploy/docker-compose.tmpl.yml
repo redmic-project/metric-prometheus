@@ -43,12 +43,6 @@ services:
       restart_policy:
         delay: 10s
         window: 2m
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-        reservations:
-          memory: 128M
 
 networks:
   metric-net:
