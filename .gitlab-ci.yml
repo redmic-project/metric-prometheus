@@ -74,7 +74,7 @@ deploy-supporting-branch-develop:
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} STORAGE_TSDB_RETENTION=${STORAGE_TSDB_RETENTION}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -94,7 +94,7 @@ deploy-stable-branch-develop:
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} STORAGE_TSDB_RETENTION=${STORAGE_TSDB_RETENTION}
   environment:
     name: dev
     url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
@@ -112,7 +112,7 @@ deploy-supporting-branch-production:
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} STORAGE_TSDB_RETENTION=${STORAGE_TSDB_RETENTION}
   environment:
     name: pro
     url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
@@ -132,7 +132,7 @@ deploy-stable-branch-production:
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      UI_AUTH=${UI_AUTH} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} STORAGE_TSDB_RETENTION=${STORAGE_TSDB_RETENTION}
   environment:
     name: pro
     url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
