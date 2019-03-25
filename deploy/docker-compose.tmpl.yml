@@ -21,8 +21,7 @@ services:
       - prometheus:/prometheus
     configs:
       - source: prometheus-conf
-        target: /tmp/prometheus.yml
-        mode: 0444
+        target: /etc/prometheus/prometheus-conf.yml
       - source: prometheus-entrypoint
         target: /etc/prometheus/entrypoint.sh
         mode: 0744

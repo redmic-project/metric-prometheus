@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+cat /etc/prometheus/prometheus-conf.yml > /tmp/prometheus.yml
+
 if [ ${JOBS+x} ]
 then
 	for job in $(echo "${JOBS}" | tr ',' ' ')
@@ -41,7 +43,7 @@ then
 	done
 fi
 
-cp /tmp/prometheus.yml /etc/prometheus/prometheus.yml
+mv /tmp/prometheus.yml /etc/prometheus/prometheus.yml
 
 set -- /bin/prometheus "$@"
 
