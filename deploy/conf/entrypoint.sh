@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-cat /etc/prometheus/prometheus.yml > /tmp/prometheus.yml
+cat /etc/prometheus/prometheus-conf.yml > /tmp/prometheus.yml
 
 if [ ${JOBS+x} ]
 then
