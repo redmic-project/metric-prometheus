@@ -2,7 +2,8 @@ version: '3.5'
 
 services:
   prometheus:
-    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_NAME:-prom/prometheus}:${IMAGE_TAG:-v2.8.0}
+    entrypoint: /etc/prometheus/entrypoint.sh
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
@@ -19,6 +20,10 @@ services:
     volumes:
       - prometheus:/prometheus
     configs:
+      - source: prometheus-conf
+        target: /etc/prometheus/prometheus.yml
+      - source: prometheus-entrypoint
+        target: /etc/prometheus/entrypoint.sh
       - source: node_rules
         target: /etc/prometheus/swarm_node.rules.yml
       - source: task_rules
@@ -56,6 +61,14 @@ networks:
     external: true
 
 configs:
+  prometheus-conf:
+    name: ${PROMETHEUS_CONFIG_NAME:-prometheus-config}
+    file: ./conf/prometheus.yml
+
+  prometheus-entrypoint:
+    name: ${PROMETHEUS_ENTRYPOINT_NAME:-prometheus-entrypoint}
+    file: ./conf/entrypoint.sh
+
   task_rules:
     name: ${TASK_RULES_NAME:-task_rules}
     file: ./rules/swarm_task.rules.yml
