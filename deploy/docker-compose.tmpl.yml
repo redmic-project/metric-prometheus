@@ -24,6 +24,7 @@ services:
         target: /etc/prometheus/prometheus.yml
       - source: prometheus-entrypoint
         target: /etc/prometheus/entrypoint.sh
+        mode: 0744
       - source: node_rules
         target: /etc/prometheus/swarm_node.rules.yml
       - source: task_rules
