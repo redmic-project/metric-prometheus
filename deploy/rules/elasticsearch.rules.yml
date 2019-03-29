@@ -1,0 +1,43 @@
+groups:
+- name: elasticsearch
+  rules:
+  - record: elasticsearch_filesystem_data_used_percent
+    expr: 100 * (elasticsearch_filesystem_data_size_bytes - elasticsearch_filesystem_data_free_bytes)
+      / elasticsearch_filesystem_data_size_bytes
+
+  - record: elasticsearch_filesystem_data_free_percent
+    expr: 100 - elasticsearch_filesystem_data_used_percent
+
+  - alert: ElasticsearchTooFewNodesRunning
+    expr: elasticsearch_cluster_health_number_of_nodes < 3
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      description: There are only {{$value}} < 3 Elasticsearch nodes running
+      summary: Elasticsearch running on less than 3 nodes
+
+  - alert: ElasticsearchHeapTooHigh
+    expr: elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"} > 0.9
+    for: 15m
+    labels:
+      severity: critical
+    annotations:
+      description: The heap usage is over 90% for 15m
+      summary: Elasticsearch node {{$labels.node}} heap usage is high
+
+  - alert: ElasticsearchHighFilesystemDataUsedPercent
+    expr: elasticsearch_filesystem_data_used_percent > 0.8
+    labels:
+      severity: critical
+    annotations:
+      description: Filesystem usage is over 80% in node '{{$labels.name}}'
+      summary: Elasticsearch filesystem usage is too high
+
+  - alert: ElasticsearchGarbageCollectionTooSlow
+    expr: irate(elasticsearch_jvm_gc_collection_seconds_sum{}[5m]) > 1
+    labels:
+      severity: critical
+    annotations:
+      description: GC is taking more than 1 second to complete in node '{{$labels.name}}'
+      summary: Elasticsearch memory usage is too heavy and GC is taking too much time

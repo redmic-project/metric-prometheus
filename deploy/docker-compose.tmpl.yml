@@ -12,11 +12,11 @@ services:
       - '--storage.tsdb.retention.time=${STORAGE_TSDB_RETENTION_TIME}'
       - '--storage.tsdb.retention.size=${STORAGE_TSDB_RETENTION_SIZE}'
     user: '0:0'
+    environment:
+      - JOBS
     networks:
       - metric-net
       - traefik-net
-    environment:
-      - JOBS
     volumes:
       - prometheus:/prometheus
     configs:
@@ -27,12 +27,14 @@ services:
         mode: 0744
       - source: node_rules
         target: /etc/prometheus/swarm_node.rules.yml
-      - source: task_rules
-        target: /etc/prometheus/swarm_task.rules.yml
-      - source: job_rules
-        target: /etc/prometheus/swarm_job.rules.yml
       - source: service_rules
         target: /etc/prometheus/swarm_service.rules.yml
+      - source: task_rules
+        target: /etc/prometheus/swarm_task.rules.yml
+      - source: scheduled_job_rules
+        target: /etc/prometheus/scheduled_job.rules.yml
+      - source: elasticsearch_rules
+        target: /etc/prometheus/elasticsearch.rules.yml
     healthcheck:
       test: wget --spider -q http://localhost:9090
       interval: 30s
@@ -70,14 +72,18 @@ configs:
     name: ${PROMETHEUS_ENTRYPOINT_NAME:-prometheus-entrypoint}
     file: ./conf/entrypoint.sh
 
+  service_rules:
+    name: ${SERVICE_RULES_NAME:-service_rules}
+    file: ./rules/swarm_service.rules.yml
+
   task_rules:
     name: ${TASK_RULES_NAME:-task_rules}
     file: ./rules/swarm_task.rules.yml
 
-  job_rules:
-    name: ${JOB_RULES_NAME:-job_rules}
-    file: ./rules/swarm_job.rules.yml
+  scheduled_job_rules:
+    name: ${SCHEDULED_JOB_RULES_NAME:-scheduled_job_rules}
+    file: ./rules/scheduled_job.rules.yml
 
-  service_rules:
-    name: ${SERVICE_RULES_NAME:-service_rules}
-    file: ./rules/swarm_service.rules.yml
+  elasticsearch_rules:
+    name: ${ELASTICSEARCH_RULES_NAME:-elasticsearch_rules}
+    file: ./rules/elasticsearch.rules.yml

@@ -1,5 +1,5 @@
 groups:
-- name: swarm_job
+- name: scheduled_job
   rules:
   - alert: backup_db_not_created
     expr: time() - backup_created_date_seconds{} > 86400
@@ -24,3 +24,19 @@ groups:
     annotations:
       description: Error, '{{ $labels.label }}' certificate near expiry.
       summary: Error, '{{ $labels.label }}' certificate near expiry.
+
+  - alert: ElasticsearchSnapshotNotPerformed
+    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp{} > 86400
+    labels:
+      severity: warning
+    annotations:
+      description: Last snapshot for '{{ $labels.repository }}' repository is too old.
+      summary: Scheduled Elasticsearch snapshot is not working.
+
+  - alert: ElasticsearchSnapshotCleanupNotPerformed
+    expr: elasticsearch_snapshot_stats_number_of_snapshots{} > 64
+    labels:
+      severity: warning
+    annotations:
+      description: Too many snapshots ({{$value}}) found for '{{ $labels.repository }}' repository.
+      summary: Scheduled Elasticsearch snapshot cleanup is not working.
