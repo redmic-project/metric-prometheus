@@ -14,7 +14,7 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: There are only {{$value}} < 3 Elasticsearch nodes running
+      description: There are only {{$value}} (< 3) Elasticsearch nodes running
       summary: Elasticsearch running on less than 3 nodes
 
   - alert: ElasticsearchHeapTooHigh
@@ -23,15 +23,15 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: The heap usage is over 90% for 15m
-      summary: Elasticsearch node {{$labels.node}} heap usage is high
+      description: The heap usage is over 90% for 15m in node '{{$labels.name}}'
+      summary: Elasticsearch node {{$labels.name}} heap usage is too high
 
   - alert: ElasticsearchHighFilesystemDataUsedPercent
-    expr: elasticsearch_filesystem_data_used_percent > 0.8
+    expr: elasticsearch_filesystem_data_used_percent > 80
     labels:
       severity: critical
     annotations:
-      description: Filesystem usage is over 80% in node '{{$labels.name}}'
+      description: Filesystem usage is over 80% ({{$value}}%) in node '{{$labels.name}}'
       summary: Elasticsearch filesystem usage is too high
 
   - alert: ElasticsearchGarbageCollectionTooSlow
@@ -39,5 +39,5 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: GC is taking more than 1 second to complete in node '{{$labels.name}}'
+      description: GC is taking more than 1 second to complete in node '{{$labels.name}}' ({{$labels.gc}} - {{$value}}s)
       summary: Elasticsearch memory usage is too heavy and GC is taking too much time
