@@ -1,10 +1,21 @@
 groups:
 - name: kafka
   rules:
-  - alert: KafkaConsumerStopped
-    expr: kafka_consumergroup_lag_sum > 100
+  - alert: KafkaConsumerLagTooHigh
+    expr: kafka_consumergroup_lag_sum > 1000
     labels:
       severity: critical
     annotations:
-      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 100) from '{{$labels.topic}}' topic
+      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 1000) from
+      '{{$labels.topic}}' topic
       summary: Kafka consumer '{{$labels.consumergroup}}' is not consuming enough messages from '{{$labels.topic}}'
+
+  - alert: KafkaConsumerLagIncreasing
+    expr: delta(kafka_consumergroup_lag_sum[5m]) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: Consumer '{{$labels.consumergroup}}' lag increased in last 5 minutes by {{$value}} for
+      '{{$labels.topic}}' topic
+      summary: Kafka consumer '{{$labels.consumergroup}}' consuming ratio is not enough for '{{$labels.topic}}'
