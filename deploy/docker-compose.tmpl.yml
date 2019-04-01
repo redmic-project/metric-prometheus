@@ -35,6 +35,8 @@ services:
         target: /etc/prometheus/scheduled_job.rules.yml
       - source: elasticsearch_rules
         target: /etc/prometheus/elasticsearch.rules.yml
+      - source: kafka_rules
+        target: /etc/prometheus/kafka.rules.yml
     healthcheck:
       test: wget --spider -q http://localhost:9090
       interval: 30s
@@ -87,3 +89,7 @@ configs:
   elasticsearch_rules:
     name: ${ELASTICSEARCH_RULES_NAME:-elasticsearch_rules}
     file: ./rules/elasticsearch.rules.yml
+
+  kafka_rules:
+    name: ${KAFKA_RULES_NAME:-kafka_rules}
+    file: ./rules/kafka.rules.yml

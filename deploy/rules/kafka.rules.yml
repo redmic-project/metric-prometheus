@@ -1,0 +1,10 @@
+groups:
+- name: elasticsearch
+  rules:
+  - alert: KafkaConsumerStopped
+    expr: kafka_consumergroup_lag_sum > 100
+    labels:
+      severity: critical
+    annotations:
+      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 100) from '{{$labels.topic}}' topic
+      summary: Kafka consumer '{{$labels.consumergroup}}' is not consuming enough messages from '{{$labels.topic}}'
