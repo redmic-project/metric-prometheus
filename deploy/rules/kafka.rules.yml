@@ -1,5 +1,5 @@
 groups:
-- name: elasticsearch
+- name: kafka
   rules:
   - alert: KafkaConsumerStopped
     expr: kafka_consumergroup_lag_sum > 100
