@@ -6,8 +6,7 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 1000) from
-      '{{$labels.topic}}' topic
+      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 1000) from '{{$labels.topic}}' topic
       summary: Kafka consumer '{{$labels.consumergroup}}' is not consuming enough messages from '{{$labels.topic}}'
 
   - alert: KafkaConsumerLagIncreasing
@@ -16,6 +15,5 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: Consumer '{{$labels.consumergroup}}' lag increased in last 5 minutes by {{$value}} for
-      '{{$labels.topic}}' topic
+      description: Consumer '{{$labels.consumergroup}}' lag increased in last 5 minutes by {{$value}} for '{{$labels.topic}}' topic
       summary: Kafka consumer '{{$labels.consumergroup}}' consuming ratio is not enough for '{{$labels.topic}}'
