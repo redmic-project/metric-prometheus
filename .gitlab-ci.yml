@@ -1,99 +1,33 @@
+include:
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/deployment.yml'
+
 stages:
   - test
   - deploy
 
-services:
-  - docker:dind
-
 variables:
-  DOCKER_DRIVER: overlay2
+  DOCKER_IMAGE: docker:stable
+  DIND_IMAGE: docker:dind
   STACK: metric
-  SERVICES_TO_CHECK: metric_prometheus
+  STATUS_CHECK_DELAY: 200
   IMAGE_NAME: prom/prometheus
   IMAGE_TAG: v2.8.0
 
 check-rules:
   stage: test
-  image: docker:stable
+  image: ${DOCKER_IMAGE}
+  services:
+    - ${DIND_IMAGE}
   script:
     - ./check-rules.sh
 
-deploy-supporting-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+.deploy:
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH}
       PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} JOBS=${JOBS} STORAGE_TSDB_RETENTION_TIME=${STORAGE_TSDB_RETENTION_TIME}
       STORAGE_TSDB_RETENTION_SIZE=${STORAGE_TSDB_RETENTION_SIZE}
   environment:
-    name: dev
-    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - branches
-  except:
-    - master
-  when: manual
-
-deploy-stable-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH}
-      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} JOBS=${JOBS} STORAGE_TSDB_RETENTION_TIME=${STORAGE_TSDB_RETENTION_TIME}
-      STORAGE_TSDB_RETENTION_SIZE=${STORAGE_TSDB_RETENTION_SIZE}
-  environment:
-    name: dev
-    url: https://prometheus.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - master
-  when: manual
-
-deploy-supporting-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
-    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH}
-      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} JOBS=${JOBS} STORAGE_TSDB_RETENTION_TIME=${STORAGE_TSDB_RETENTION_TIME}
-      STORAGE_TSDB_RETENTION_SIZE=${STORAGE_TSDB_RETENTION_SIZE}
-  environment:
-    name: pro
-    url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
-  only:
-    - branches
-  except:
-    - master
-  when: manual
-
-deploy-stable-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
-    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH}
-      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} JOBS=${JOBS} STORAGE_TSDB_RETENTION_TIME=${STORAGE_TSDB_RETENTION_TIME}
-      STORAGE_TSDB_RETENTION_SIZE=${STORAGE_TSDB_RETENTION_SIZE}
-  environment:
-    name: pro
-    url: https://prometheus.${PRO_PUBLIC_HOSTNAME}
-  only:
-    - master
-  when: manual
+    url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
