@@ -8,6 +8,7 @@ stages:
   - deploy
 
 variables:
+  DIND_IMAGE: docker:dind
   STACK: metric
   STATUS_CHECK_DELAY: 200
   IMAGE_NAME: prom/prometheus
@@ -15,7 +16,7 @@ variables:
 
 check-rules:
   stage: test
-  image: docker:stable
+  image: ${DIND_IMAGE}
   script:
     - ./check-rules.sh
 
