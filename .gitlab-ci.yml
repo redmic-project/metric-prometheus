@@ -8,6 +8,7 @@ stages:
   - deploy
 
 variables:
+  DOCKER_IMAGE: docker:stable
   DIND_IMAGE: docker:dind
   STACK: metric
   STATUS_CHECK_DELAY: 200
@@ -16,7 +17,9 @@ variables:
 
 check-rules:
   stage: test
-  image: ${DIND_IMAGE}
+  image: ${DOCKER_IMAGE}
+  services:
+    - ${DIND_IMAGE}
   script:
     - ./check-rules.sh
 
