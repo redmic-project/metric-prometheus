@@ -1,17 +1,18 @@
 groups:
 - name: swarm_task
   rules:
-  - alert: task_high_cpu_usage_80
+  - alert: task_high_cpu_usage_90
     expr: sum(rate(container_cpu_usage_seconds_total{container_label_com_docker_swarm_task_name=~".+"}[1m]))
       BY (container_label_com_docker_swarm_task_name, container_label_com_docker_swarm_node_id)
-      * 100 > 80
+      * 100 > 90
     for: 5m
+    labels:
+      severity: warning
     annotations:
-      description: '{{ $labels.container_label_com_docker_swarm_task_name }} on ''{{
-        $labels.container_label_com_docker_swarm_node_id }}'' CPU usage is at {{ humanize
-        $value}}%.'
-      summary: CPU alert for Swarm task '{{ $labels.container_label_com_docker_swarm_task_name }}'
-        on '{{ $labels.container_label_com_docker_swarm_node_id }}'
+      description: '{{$labels.container_label_com_docker_swarm_task_name}} on ''{{
+        $labels.container_label_com_docker_swarm_node_id}}'' CPU usage is at {{humanize $value}}%'
+      summary: CPU alert for Swarm task '{{$labels.container_label_com_docker_swarm_task_name}}' on
+        '{{$labels.container_label_com_docker_swarm_node_id}}'
 
   - record: task_memory_usage_percent
     expr: 100 * (sum(container_memory_rss{container_label_com_docker_swarm_task_name=~".+"})
@@ -21,10 +22,11 @@ groups:
 
   - alert: task_high_memory_usage_90
     expr: task_memory_usage_percent > 90
-    for: 1m
+    for: 5m
+    labels:
+      severity: warning
     annotations:
-      description: '{{ $labels.container_label_com_docker_swarm_task_name }} on ''{{
-        $labels.container_label_com_docker_swarm_node_id }}'' memory usage is at {{ humanize
-        $value}}%.'
-      summary: Memory alert for Swarm task '{{ $labels.container_label_com_docker_swarm_task_name }}'
-        on '{{ $labels.container_label_com_docker_swarm_node_id }}'
+      description: '{{$labels.container_label_com_docker_swarm_task_name}} on ''{{
+        $labels.container_label_com_docker_swarm_node_id}}'' memory usage is at {{humanize $value}}%'
+      summary: Memory alert for Swarm task '{{$labels.container_label_com_docker_swarm_task_name}}' on
+        '{{$labels.container_label_com_docker_swarm_node_id}}'

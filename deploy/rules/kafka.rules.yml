@@ -1,20 +1,38 @@
 groups:
 - name: kafka
   rules:
-  - alert: KafkaConsumerLagTooHigh
+  - alert: KafkaConsumerHighLag
     expr: kafka_consumergroup_lag_sum > 1000
     for: 5m
     labels:
-      severity: critical
+      severity: warning
     annotations:
-      description: Consumer '{{$labels.consumergroup}}' has {{$value}} pending messages (> 1000) from '{{$labels.topic}}' topic
-      summary: Kafka consumer '{{$labels.consumergroup}}' is not consuming enough messages from '{{$labels.topic}}'
+      description: Consumer group '{{$labels.consumergroup}}' has {{humanize $value}} pending messages from '{{$labels.topic}}' topic
+      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming enough messages from '{{$labels.topic}}' (lag > 1K)
 
   - alert: KafkaConsumerLagIncreasing
     expr: delta(kafka_consumergroup_lag_sum[5m]) > 0
     for: 5m
     labels:
+      severity: warning
+    annotations:
+      description: Lag of consumer group '{{$labels.consumergroup}}' increased in last 5 minutes by {{humanize $value}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}'
+
+  - alert: KafkaConsumerTooHighLag
+    expr: kafka_consumergroup_lag_sum > 10000
+    for: 5m
+    labels:
       severity: critical
     annotations:
-      description: Consumer '{{$labels.consumergroup}}' lag increased in last 5 minutes by {{$value}} for '{{$labels.topic}}' topic
-      summary: Kafka consumer '{{$labels.consumergroup}}' consuming ratio is not enough for '{{$labels.topic}}'
+      description: Consumer group '{{$labels.consumergroup}}' has {{humanize $value}} pending messages from '{{$labels.topic}}' topic
+      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming enough messages from '{{$labels.topic}}' (lag > 10K)
+
+  - alert: KafkaConsumerLagIncreasingTooMuch
+    expr: delta(kafka_consumergroup_lag_sum[15m]) > 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      description: Lag of consumer group '{{$labels.consumergroup}}' increased in last 15 minutes by {{humanize $value}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}'

@@ -1,42 +1,39 @@
 groups:
 - name: scheduled_job
   rules:
-  - alert: backup_db_not_created
-    expr: time() - backup_created_date_seconds{} > 86400
+  - alert: BackupDatabaseNotCreated
+    expr: time() - backup_created_date_seconds{} > 129600
     labels:
       severity: warning
     annotations:
-      description: Error creating backup for '{{ $labels.label }}' database.
-      summary: Error creating backup for '{{ $labels.label }}' database.
+      description: Backup for '{{$labels.label}}' database delayed for {{humanizeDuration $value}}
 
-  - alert: certificate_renew_not_attempted
-    expr: time() - certificates_valid_date_seconds{} > 604800
+  - alert: CertificateRenewalNotAttempted
+    expr: time() - certificates_valid_date_seconds{} > 907200
     labels:
       severity: warning
     annotations:
-      description: Error attemping to renew '{{ $labels.label }}' certificate.
-      summary: Error attemping to renew '{{ $labels.label }}' certificate.
+      description: Renewal attempt for '{{$labels.label}}' certificate delayed for {{humanizeDuration $value}}
 
-  - alert: certificate_not_renewed
+  - alert: CertificateNotRenewed
     expr: time() - certificates_updated_date_seconds{} > 5788800
     labels:
-      severity: warning
+      severity: critical
     annotations:
-      description: Error, '{{ $labels.label }}' certificate near expiry.
-      summary: Error, '{{ $labels.label }}' certificate near expiry.
+      description: Certificate of '{{$labels.label}}' not renewed since {{humanizeDuration $value}}, expiry date is 3 months
 
   - alert: ElasticsearchSnapshotNotPerformed
-    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp{} > 86400
+    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp{} > 129600
     labels:
       severity: warning
     annotations:
-      description: Last snapshot for '{{ $labels.repository }}' repository is too old.
-      summary: Scheduled Elasticsearch snapshot is not working.
+      description: Snapshot for '{{$labels.repository}}' repository delayed for {{humanizeDuration $value}}
+      summary: Scheduled Elasticsearch snapshot creation is not working
 
   - alert: ElasticsearchSnapshotCleanupNotPerformed
-    expr: elasticsearch_snapshot_stats_number_of_snapshots{} > 64
+    expr: elasticsearch_snapshot_stats_number_of_snapshots{} > 100
     labels:
       severity: warning
     annotations:
-      description: Too many snapshots ({{$value}}) found for '{{ $labels.repository }}' repository.
-      summary: Scheduled Elasticsearch snapshot cleanup is not working.
+      description: Too many snapshots ({{humanize $value}}) found for '{{$labels.repository}}' repository
+      summary: Scheduled Elasticsearch snapshot cleanup is not working
