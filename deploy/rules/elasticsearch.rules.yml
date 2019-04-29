@@ -5,39 +5,38 @@ groups:
     expr: 100 * (elasticsearch_filesystem_data_size_bytes - elasticsearch_filesystem_data_free_bytes)
       / elasticsearch_filesystem_data_size_bytes
 
-  - record: elasticsearch_filesystem_data_free_percent
-    expr: 100 - elasticsearch_filesystem_data_used_percent
-
   - alert: ElasticsearchTooFewNodesRunning
     expr: elasticsearch_cluster_health_number_of_nodes < 3
     for: 5m
     labels:
       severity: critical
     annotations:
-      description: There are only {{$value}} (< 3) Elasticsearch nodes running
+      description: There are only {{$value}} Elasticsearch nodes running in cluster '{{$labels.cluster}}'
       summary: Elasticsearch running on less than 3 nodes
 
   - alert: ElasticsearchHeapTooHigh
-    expr: elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"} > 0.9
+    expr: 100 * (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) > 80
     for: 15m
     labels:
       severity: critical
     annotations:
-      description: The heap usage is over 90% for 15m in node '{{$labels.name}}'
-      summary: Elasticsearch node {{$labels.name}} heap usage is too high
+      description: The heap usage is at {{humanize $value}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
+      summary: Elasticsearch node {{$labels.name}} heap usage is too high (> 80%)
 
   - alert: ElasticsearchHighFilesystemDataUsedPercent
     expr: elasticsearch_filesystem_data_used_percent > 80
+    for: 1m
     labels:
       severity: critical
     annotations:
-      description: Filesystem usage is over 80% ({{$value}}%) in node '{{$labels.name}}'
-      summary: Elasticsearch filesystem usage is too high
+      description: Filesystem usage is at {{humanize $value}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
+      summary: Elasticsearch node {{$labels.name}} filesystem usage is too high (> 80%)
 
   - alert: ElasticsearchGarbageCollectionTooSlow
-    expr: irate(elasticsearch_jvm_gc_collection_seconds_sum{}[5m]) > 1
+    expr: irate(elasticsearch_jvm_gc_collection_seconds_sum{}[5m]) > 0.5
+    for: 1m
     labels:
       severity: critical
     annotations:
-      description: GC is taking more than 1 second to complete in node '{{$labels.name}}' ({{$labels.gc}} - {{$value}}s)
-      summary: Elasticsearch memory usage is too heavy and GC is taking too much time
+      description: GC ({{$labels.gc}} space) is taking {{humanizeDuration $value}} to complete in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
+      summary: Elasticsearch node {{$labels.name}} memory usage is too heavy and GC is taking too much time (> 500 ms)

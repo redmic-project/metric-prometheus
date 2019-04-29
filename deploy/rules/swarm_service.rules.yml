@@ -1,20 +1,18 @@
 groups:
 - name: swarm_service
   rules:
-  - alert: service_in_restart_loop
-    expr: avg without(instance)(changes(process_start_time_seconds[1h]) > bool 3) > 0.1
+  - alert: TargetServiceInRestartLoop
+    expr: avg without(instance)(changes(process_start_time_seconds[1h]) > bool 3) > 0
     for: 10m
     labels:
       severity: warning
     annotations:
-      description: Service '{{ $labels.job }}' has been restarted 3 times in last hour.
-      summary: Service '{{ $labels.job }}' has been restarted 3 times in last hour.
+      description: Service '{{$labels.job}}' has been restarted at least 3 times since last hour
 
-  - alert: service_down
+  - alert: TargetServiceIsDown
     expr: up == 0
     for: 5m
     labels:
       severity: warning
     annotations:
-      description: Instance '{{ $labels.instance }}' of job {{ $labels.job }} has been down for more than 5 minutes.
-      summary: Instance '{{ $labels.instance }}' of job {{ $labels.job }} has been down for more than 5 minutes.
+      description: Service '{{$labels.job}}' is down
