@@ -1,38 +1,29 @@
 groups:
 - name: kafka
   rules:
-  - alert: KafkaConsumerHighLag
-    expr: kafka_consumergroup_lag_sum > 1000
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      description: Consumer group '{{$labels.consumergroup}}' has {{humanize $value}} pending messages from '{{$labels.topic}}' topic
-      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming enough messages from '{{$labels.topic}}' (lag > 1K)
-
   - alert: KafkaConsumerLagIncreasing
-    expr: delta(kafka_consumergroup_lag_sum[5m]) > 0
-    for: 5m
+    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 0.6
+    for: 3m
     labels:
       severity: warning
     annotations:
-      description: Lag of consumer group '{{$labels.consumergroup}}' increased in last 5 minutes by {{humanize $value}} for '{{$labels.topic}}' topic
-      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}'
+      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{humanize $value}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio > 0.6)
 
   - alert: KafkaConsumerTooHighLag
-    expr: kafka_consumergroup_lag_sum > 10000
-    for: 5m
+    expr: kafka_consumergroup_lag_sum > 1000000
+    for: 1m
     labels:
       severity: critical
     annotations:
       description: Consumer group '{{$labels.consumergroup}}' has {{humanize $value}} pending messages from '{{$labels.topic}}' topic
-      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming enough messages from '{{$labels.topic}}' (lag > 10K)
+      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming messages from '{{$labels.topic}}' (lag > 1M)
 
   - alert: KafkaConsumerLagIncreasingTooMuch
-    expr: delta(kafka_consumergroup_lag_sum[15m]) > 0
-    for: 5m
+    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 0.8
+    for: 3m
     labels:
       severity: critical
     annotations:
-      description: Lag of consumer group '{{$labels.consumergroup}}' increased in last 15 minutes by {{humanize $value}} for '{{$labels.topic}}' topic
-      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}'
+      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{humanize $value}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio > 0.8)
