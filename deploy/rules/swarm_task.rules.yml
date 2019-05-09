@@ -10,7 +10,7 @@ groups:
       severity: warning
     annotations:
       description: '{{$labels.container_label_com_docker_swarm_task_name}} on ''{{
-        $labels.container_label_com_docker_swarm_node_id}}'' CPU usage is at {{humanize $value}}%'
+        $labels.container_label_com_docker_swarm_node_id}}'' CPU usage is at {{$value | printf "%.1f"}}%'
       summary: CPU alert for Swarm task '{{$labels.container_label_com_docker_swarm_task_name}}' on
         '{{$labels.container_label_com_docker_swarm_node_id}}'
 
@@ -27,6 +27,6 @@ groups:
       severity: warning
     annotations:
       description: '{{$labels.container_label_com_docker_swarm_task_name}} on ''{{
-        $labels.container_label_com_docker_swarm_node_id}}'' memory usage is at {{humanize $value}}%'
+        $labels.container_label_com_docker_swarm_node_id}}'' memory usage is at {{$value | printf "%.1f"}}%'
       summary: Memory alert for Swarm task '{{$labels.container_label_com_docker_swarm_task_name}}' on
         '{{$labels.container_label_com_docker_swarm_node_id}}'

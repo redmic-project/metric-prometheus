@@ -20,7 +20,7 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: The heap usage is at {{humanize $value}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
+      description: The heap usage is at {{$value | printf "%.1f"}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
       summary: Elasticsearch node {{$labels.name}} heap usage is too high (> 80%)
 
   - alert: ElasticsearchHighFilesystemDataUsedPercent
@@ -29,11 +29,11 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: Filesystem usage is at {{humanize $value}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
+      description: Filesystem usage is at {{$value | printf "%.1f"}}% in node '{{$labels.name}}' from cluster '{{$labels.cluster}}'
       summary: Elasticsearch node {{$labels.name}} filesystem usage is too high (> 80%)
 
   - alert: ElasticsearchGarbageCollectionTooSlow
-    expr: irate(elasticsearch_jvm_gc_collection_seconds_sum{}[5m]) > 0.5
+    expr: irate(elasticsearch_jvm_gc_collection_seconds_sum[5m]) > 0.5
     for: 1m
     labels:
       severity: critical
