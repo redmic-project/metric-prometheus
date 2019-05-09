@@ -8,7 +8,7 @@ groups:
     labels:
       severity: warning
     annotations:
-      description: Swarm node {{$labels.node_name}} CPU usage is at {{humanize $value}}%
+      description: Swarm node {{$labels.node_name}} CPU usage is at {{$value | printf "%.1f"}}%
       summary: CPU alert for Swarm node '{{$labels.node_name}}'
 
   - alert: node_memory_usage
@@ -18,7 +18,7 @@ groups:
     labels:
       severity: warning
     annotations:
-      description: Swarm node {{$labels.node_name}} memory usage is at {{humanize $value}}%
+      description: Swarm node {{$labels.node_name}} memory usage is at {{$value | printf "%.1f"}}%
       summary: Memory alert for Swarm node '{{$labels.node_name}}'
 
   - alert: node_disk_usage
@@ -29,7 +29,7 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: Swarm node {{$labels.node_name}} disk usage is at {{humanize $value}}%
+      description: Swarm node {{$labels.node_name}} disk usage is at {{$value | printf "%.1f"}}%
       summary: Disk alert for Swarm node '{{$labels.node_name}}'
 
   - alert: node_disk_fill_rate_6h
@@ -50,7 +50,7 @@ groups:
     labels:
       severity: critical
     annotations:
-      description: Swarm node {{$labels.node_name}} EBS disk '{{$labels.mountpoint}}' usage is at {{humanize $value}}%
+      description: Swarm node {{$labels.node_name}} EBS disk '{{$labels.mountpoint}}' usage is at {{$value | printf "%.1f"}}%
       summary: EBS disk alert for Swarm node '{{$labels.node_name}}'
 
   - alert: SwarmNodeEbsDiskFillRate

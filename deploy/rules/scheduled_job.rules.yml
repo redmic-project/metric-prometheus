@@ -2,28 +2,32 @@ groups:
 - name: scheduled_job
   rules:
   - alert: BackupDatabaseNotCreated
-    expr: time() - backup_created_date_seconds{} > 129600
+    expr: time() - backup_created_date_seconds > 129600
+    for: 1h
     labels:
       severity: warning
     annotations:
       description: Backup for '{{$labels.label}}' database delayed for {{humanizeDuration $value}}
 
   - alert: CertificateRenewalNotAttempted
-    expr: time() - certificates_valid_date_seconds{} > 907200
+    expr: time() - certificates_valid_date_seconds > 907200
+    for: 1h
     labels:
       severity: warning
     annotations:
       description: Renewal attempt for '{{$labels.label}}' certificate delayed for {{humanizeDuration $value}}
 
   - alert: CertificateNotRenewed
-    expr: time() - certificates_updated_date_seconds{} > 5788800
+    expr: time() - certificates_updated_date_seconds > 5788800
+    for: 1h
     labels:
       severity: critical
     annotations:
       description: Certificate of '{{$labels.label}}' not renewed since {{humanizeDuration $value}}, expiry date is 3 months
 
   - alert: ElasticsearchSnapshotNotPerformed
-    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp{} > 129600
+    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp > 129600
+    for: 1h
     labels:
       severity: warning
     annotations:
@@ -31,7 +35,8 @@ groups:
       summary: Scheduled Elasticsearch snapshot creation is not working
 
   - alert: ElasticsearchSnapshotCleanupNotPerformed
-    expr: elasticsearch_snapshot_stats_number_of_snapshots{} > 100
+    expr: elasticsearch_snapshot_stats_number_of_snapshots > 100
+    for: 1h
     labels:
       severity: warning
     annotations:

@@ -2,12 +2,12 @@ groups:
 - name: kafka
   rules:
   - alert: KafkaConsumerLagIncreasing
-    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 0.6
+    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) > 0.6
     for: 3m
     labels:
       severity: warning
     annotations:
-      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{humanize $value}} for '{{$labels.topic}}' topic
+      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
       summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio > 0.6)
 
   - alert: KafkaConsumerTooHighLag
@@ -20,10 +20,10 @@ groups:
       summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming messages from '{{$labels.topic}}' (lag > 1M)
 
   - alert: KafkaConsumerLagIncreasingTooMuch
-    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 0.8
+    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 1
     for: 3m
     labels:
       severity: critical
     annotations:
-      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{humanize $value}} for '{{$labels.topic}}' topic
-      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio > 0.8)
+      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio >= 1)
