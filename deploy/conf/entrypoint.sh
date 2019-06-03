@@ -2,27 +2,31 @@
 
 cat /etc/prometheus/prometheus-conf.yml > /tmp/prometheus.yml
 
-if [ ${JOBS+x} ]
+if [ ${JOBS:+x} ]
 then
 	for job in $(echo "${JOBS}" | tr ',' ' ')
 	do
-		echo "adding job $job"
+		echo "adding job ${job}"
 
-		params_job=$(echo "${job}" | sed -r 's/(.*):([[:digit:]]+)((\/.*)*)$/\1 \2 \3/')
+		jobParams=$(echo "${job}" | sed -r 's/(.*):([[:digit:]]+)(\/[^;]*)?(;([[:digit:]]+)?)?(;([[:digit:]]+)?)?$/\1 \2 \3 \5 \7/')
 
-		SERVICE=$(echo "${params_job}" | cut -d " " -f1)
-		PORT=$(echo "${params_job}" | cut -d " " -f2)
-		METRIC_PATH=$(echo "${params_job}" | cut -d " " -f3)
+		serviceName=$(echo "${jobParams}" | cut -d " " -f1)
+		port=$(echo "${jobParams}" | cut -d " " -f2)
+		metricsPath=$(echo "${jobParams}" | cut -d " " -f3)
+		scrapeInterval=$(echo "${jobParams}" | cut -d " " -f4)
+		scrapeTimeout=$(echo "${jobParams}" | cut -d " " -f5)
 
 		cat >>/tmp/prometheus.yml <<EOF
 
-  - job_name: '${SERVICE}'
-    metrics_path: '${METRIC_PATH:-/metrics}'
+  - job_name: '${serviceName}'
+    ${scrapeInterval:+scrape_interval: ${scrapeInterval}s}
+    ${scrapeTimeout:+scrape_timeout: ${scrapeTimeout}s}
+    ${metricsPath:+metrics_path: '${metricsPath}'}
     dns_sd_configs:
-    - names:
-      - 'tasks.${SERVICE}'
-      type: 'A'
-      port: ${PORT}
+      - names:
+          - 'tasks.${serviceName}'
+        type: 'A'
+        port: ${port}
 EOF
 	done
 fi
