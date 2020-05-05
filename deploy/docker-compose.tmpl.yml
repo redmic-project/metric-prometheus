@@ -2,29 +2,29 @@ version: '3.5'
 
 services:
   prometheus:
-    image: ${IMAGE_NAME:-prom/prometheus}:${IMAGE_TAG:-v2.8.0}
-    entrypoint: /etc/prometheus/entrypoint.sh
+    image: ${IMAGE_NAME:-prom/prometheus}:${IMAGE_TAG:-latest}
+    entrypoint: ${CONFIG_PATH}/${ENTRYPOINT_FILENAME}
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=${STORAGE_TSDB_RETENTION_TIME}'
-      - '--storage.tsdb.retention.size=${STORAGE_TSDB_RETENTION_SIZE}'
-    user: '0:0'
+      - --config.file=${CONFIG_PATH}/${FINAL_CONFIG_FILENAME}
+      - --storage.tsdb.path=${DATA_PATH}
+      - --storage.tsdb.retention.time=${STORAGE_TSDB_RETENTION_TIME}
+      - --storage.tsdb.retention.size=${STORAGE_TSDB_RETENTION_SIZE}
     environment:
-      - JOBS
+      CONFIG_PATH:
+      INITIAL_CONFIG_FILENAME:
+      FINAL_CONFIG_FILENAME:
+      JOBS:
     networks:
-      - metric-net
-      - traefik-net
+      metric-net:
+      traefik-net:
     volumes:
-      - prometheus:/prometheus
+      - data-vol:${DATA_PATH}
     configs:
-      - source: prometheus-conf
-        target: /etc/prometheus/prometheus-conf.yml
-      - source: prometheus-entrypoint
-        target: /etc/prometheus/entrypoint.sh
-        mode: 0744
+      - source: entrypoint-config
+        target: ${CONFIG_PATH}/${ENTRYPOINT_FILENAME}
+        mode: 0555
+      - source: prometheus-config
+        target: ${CONFIG_PATH}/${INITIAL_CONFIG_FILENAME}
       - source: node_rules
         target: /etc/prometheus/swarm_node.rules.yml
       - source: service_rules
@@ -38,41 +38,43 @@ services:
       - source: kafka_rules
         target: /etc/prometheus/kafka.rules.yml
     healthcheck:
-      test: wget --spider -q http://localhost:9090
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 3m
+      test: wget --spider -q http://localhost:${PORT}
+      interval: ${HEALTHCHECK_INTERVAL:-1m}
+      timeout: ${HEALTHCHECK_TIMEOUT:-30s}
+      retries: ${HEALTHCHECK_RETRIES:-10}
+      start_period: ${HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: ${REPLICAS:-1}
+      restart_policy:
+        delay: ${RESTART_DELAY:-3s}
+      update_config:
+        delay: ${UPDATE_DELAY:-1m}
       labels:
         traefik.frontend.auth.basic.users: ${UI_AUTH}
-        traefik.frontend.rule: Host:prometheus.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-prometheus}.${PUBLIC_HOSTNAME}
         traefik.backend: prometheus
-        traefik.port: '9090'
-      restart_policy:
-        delay: 10s
-        window: 2m
+        traefik.port: '${PORT}'
 
 networks:
   metric-net:
     name: ${METRIC_NET_NAME:-metric-net}
-    driver: overlay
+    driver: ${METRIC_NET_DRIVER:-overlay}
     attachable: ${METRIC_NET_ATTACHABLE:-true}
 
   traefik-net:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
+    driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
 
 configs:
-  prometheus-conf:
+  entrypoint-config:
+    name: ${ENTRYPOINT_CONFIG_NAME:-prometheus-entrypoint}
+    file: ./conf/entrypoint.sh
+
+  prometheus-config:
     name: ${PROMETHEUS_CONFIG_NAME:-prometheus-config}
     file: ./conf/prometheus.yml
-
-  prometheus-entrypoint:
-    name: ${PROMETHEUS_ENTRYPOINT_NAME:-prometheus-entrypoint}
-    file: ./conf/entrypoint.sh
 
   service_rules:
     name: ${SERVICE_RULES_NAME:-service_rules}

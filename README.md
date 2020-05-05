@@ -6,7 +6,7 @@ Set `JOBS` environment variable with a string of service scrape definitions, sep
 
 Single scrape definition follow this syntax:
 
-```
+```sh
 <serviceName>:<port>[<metricsPath>][;[<scrapeInterval>][;[<scrapeTimeout>]]]
 ```
 
@@ -22,7 +22,7 @@ Each service scrape definition can contains 5 parameters (**bold** ones are mand
 
 Consider 3 services to scrape:
 
-```
+```sh
 JOBS=service1:8080,service2:8000/metrics-path;60;30,service3:3000;;20
 ```
 

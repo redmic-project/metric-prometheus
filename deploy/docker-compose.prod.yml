@@ -8,15 +8,15 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '1'
-          memory: 2G
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-2G}
         reservations:
-          cpus: '0.1'
-          memory: 512M
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-512M}
 
 volumes:
-  prometheus:
-    name: ${PROMETHEUS_VOL_NAME:-prometheus-vol}
+  data-vol:
+    name: ${DATA_VOL_NAME}
     driver: 'cloudstor:aws'
     driver_opts:
       backing: relocatable
@@ -25,5 +25,5 @@ volumes:
 
 configs:
   node_rules:
-    name: ${NODE_RULES_NAME:-node_rules}
+    name: ${NODE_RULES_NAME}
     file: ./rules/swarm_node.rules.prod.yml
