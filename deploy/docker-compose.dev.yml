@@ -5,17 +5,17 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 1G
+          cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-1G}
         reservations:
-          cpus: '0.1'
-          memory: 256M
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-256M}
 
 volumes:
-  prometheus:
-    name: ${PROMETHEUS_VOL_NAME:-prometheus-vol}
+  data-vol:
+    name: ${DATA_VOL_NAME}
 
 configs:
   node_rules:
-    name: ${NODE_RULES_NAME:-node_rules}
+    name: ${NODE_RULES_NAME}
     file: ./rules/swarm_node.rules.dev.yml

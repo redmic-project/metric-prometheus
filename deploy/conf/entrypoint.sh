@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-cat /etc/prometheus/prometheus-conf.yml > /tmp/prometheus.yml
+cat ${CONFIG_PATH}/${INITIAL_CONFIG_FILENAME} > /tmp/prometheus.yml
 
 if [ ${JOBS:+x} ]
 then
@@ -31,12 +31,12 @@ EOF
 	done
 fi
 
-if ls /etc/prometheus/*.rules.yml > /dev/null 2> /dev/null
+if ls ${CONFIG_PATH}/*.rules.yml > /dev/null 2> /dev/null
 then
 	echo "Adding rules file"
 	echo "rule_files:" >> /tmp/prometheus.yml
 
-	for f in /etc/prometheus/*.rules.yml
+	for f in ${CONFIG_PATH}/*.rules.yml
 	do
 		if [ -e "${f}" ]
 		then
@@ -47,7 +47,7 @@ then
 	done
 fi
 
-mv /tmp/prometheus.yml /etc/prometheus/prometheus.yml
+mv /tmp/prometheus.yml ${CONFIG_PATH}/${FINAL_CONFIG_FILENAME}
 
 set -- /bin/prometheus "$@"
 

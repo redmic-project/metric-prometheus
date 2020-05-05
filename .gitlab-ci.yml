@@ -8,26 +8,23 @@ stages:
   - deploy
 
 variables:
-  DOCKER_IMAGE: docker:stable
-  DIND_IMAGE: docker:dind
-  STACK: metric
-  STATUS_CHECK_DELAY: 200
-  IMAGE_NAME: prom/prometheus
-  IMAGE_TAG: v2.8.0
+  PROJECT_PARENT_NAME: metric
 
 check-rules:
   stage: test
   image: ${DOCKER_IMAGE}
+  variables:
+    DOCKER_IMAGE: docker:stable
+    DIND_IMAGE: docker:dind
   services:
     - ${DIND_IMAGE}
   script:
     - ./check-rules.sh
 
 .deploy:
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} UI_AUTH=${UI_AUTH}
-      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME} JOBS=${JOBS} STORAGE_TSDB_RETENTION_TIME=${STORAGE_TSDB_RETENTION_TIME}
-      STORAGE_TSDB_RETENTION_SIZE=${STORAGE_TSDB_RETENTION_SIZE}
+  variables:
+    STACK: ${PROJECT_PARENT_NAME}
+    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_${CI_PROJECT_NAME}
+    STATUS_CHECK_DELAY: 200
   environment:
     url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
