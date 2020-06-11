@@ -3,6 +3,9 @@ version: '3.5'
 services:
   prometheus:
     deploy:
+      placement:
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME:-hostname}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
