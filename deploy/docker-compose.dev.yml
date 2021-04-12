@@ -3,9 +3,6 @@ version: '3.5'
 services:
   prometheus:
     deploy:
-      placement:
-        constraints:
-          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME:-hostname}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
@@ -17,6 +14,11 @@ services:
 volumes:
   data-vol:
     name: ${DATA_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${DATA_VOL_TYPE:-nfs4}
+      o: addr=${DATA_VOL_ADDR:-127.0.0.1},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: ${DATA_VOL_DEVICE:-:/prometheus-vol/}
 
 configs:
   node_rules:
