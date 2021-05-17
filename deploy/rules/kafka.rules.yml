@@ -1,14 +1,23 @@
 groups:
 - name: kafka
   rules:
+  - record: kafka_consumer_lag_5m_sum_delta
+    expr: sum(delta(kafka_consumergroup_lag_sum[5m]))
+
+  - record: kafka_consumer_lag_5m_sum_delta_avg
+    expr: avg_over_time(kafka_consumer_lag_5m_sum_delta[1d:])
+
+  - record: kafka_consumer_lag_5m_sum_delta_stddev
+    expr: stddev_over_time(kafka_consumer_lag_5m_sum_delta[1d:])
+
   - alert: KafkaConsumerLagIncreasing
-    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) > 0.6
+    expr: abs(kafka_consumer_lag_5m_sum_delta - kafka_consumer_lag_5m_sum_delta_avg) / kafka_consumer_lag_5m_sum_delta_stddev > 1
     for: 3m
     labels:
       severity: warning
     annotations:
-      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
-      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio > 0.6)
+      description: abs(z-score) for lag of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
+      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (abs(z-score > 1)
 
   - alert: KafkaConsumerTooHighLag
     expr: kafka_consumergroup_lag_sum > 1000000
@@ -18,12 +27,3 @@ groups:
     annotations:
       description: Consumer group '{{$labels.consumergroup}}' has {{humanize $value}} pending messages from '{{$labels.topic}}' topic
       summary: Kafka consumers from '{{$labels.consumergroup}}' group are not consuming messages from '{{$labels.topic}}' (lag > 1M)
-
-  - alert: KafkaConsumerLagIncreasingTooMuch
-    expr: kafka_consumergroup_lag_sum / delta(kafka_consumergroup_current_offset_sum[5m]) >= 1
-    for: 3m
-    labels:
-      severity: critical
-    annotations:
-      description: Lag ratio of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
-      summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (lag ratio >= 1)
