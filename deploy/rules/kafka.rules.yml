@@ -1,18 +1,10 @@
 groups:
 - name: kafka
   rules:
-  - record: kafka_consumer_lag_5m_sum_delta
-    expr: sum(delta(kafka_consumergroup_lag_sum[5m]))
-
-  - record: kafka_consumer_lag_5m_sum_delta_avg
-    expr: avg_over_time(kafka_consumer_lag_5m_sum_delta[1d:])
-
-  - record: kafka_consumer_lag_5m_sum_delta_stddev
-    expr: stddev_over_time(kafka_consumer_lag_5m_sum_delta[1d:])
-
   - alert: KafkaConsumerLagIncreasing
-    expr: abs(kafka_consumer_lag_5m_sum_delta - kafka_consumer_lag_5m_sum_delta_avg) / kafka_consumer_lag_5m_sum_delta_stddev > 1
-    for: 3m
+    expr: abs(delta(kafka_consumergroup_lag_sum[5m]) - avg_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:])) /
+      stddev_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:]) > 1
+    for: 5m
     labels:
       severity: warning
     annotations:
