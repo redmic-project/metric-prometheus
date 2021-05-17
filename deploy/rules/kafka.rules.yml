@@ -4,7 +4,7 @@ groups:
   - alert: KafkaConsumerLagIncreasing
     expr: abs(delta(kafka_consumergroup_lag_sum[5m]) - avg_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:])) /
       stddev_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:]) > 1
-    for: 5m
+    for: 15m
     labels:
       severity: warning
     annotations:
