@@ -12,7 +12,7 @@ groups:
       summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (abs(z-score > 1)
 
   - alert: KafkaConsumerGroupIsEmpty
-    expr: kafka_consumergroup_members = 0
+    expr: kafka_consumergroup_members == 0
     for: 10m
     labels:
       severity: critical
