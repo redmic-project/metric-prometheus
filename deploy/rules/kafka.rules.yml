@@ -2,14 +2,23 @@ groups:
 - name: kafka
   rules:
   - alert: KafkaConsumerLagIncreasing
-    expr: abs(delta(kafka_consumergroup_lag_sum[5m]) - avg_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:])) /
-      stddev_over_time(delta(kafka_consumergroup_lag_sum[5m])[1d:]) > 1
-    for: 15m
+    expr: abs(rate(kafka_consumergroup_lag_sum[5m]) - avg_over_time(rate(kafka_consumergroup_lag_sum[5m])[1d:])) /
+      stddev_over_time(rate(kafka_consumergroup_lag_sum[5m])[1d:]) > 3
+    for: 5m
     labels:
-      severity: warning
+      severity: critical
     annotations:
       description: abs(z-score) for lag of consumer group '{{$labels.consumergroup}}' is at {{$value | printf "%.3f"}} for '{{$labels.topic}}' topic
       summary: Consuming ratio of Kafka consumer group '{{$labels.consumergroup}}' is not enough for '{{$labels.topic}}' (abs(z-score > 1)
+
+  - alert: KafkaConsumerGroupIsEmpty
+    expr: kafka_consumergroup_members == 0
+    for: 10m
+    labels:
+      severity: critical
+    annotations:
+      description: Consumer group '{{$labels.consumergroup}}' has no active consumers
+      summary: Kafka consumers from '{{$labels.consumergroup}}' group are not running
 
   - alert: KafkaConsumerTooHighLag
     expr: kafka_consumergroup_lag_sum > 1000000
