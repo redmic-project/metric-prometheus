@@ -2,7 +2,7 @@ groups:
 - name: scheduled_job
   rules:
   - alert: BackupDatabaseNotCreated
-    expr: time() - backup_created_date_seconds > 129600
+    expr: time() - backup_created_date_seconds > 648000
     for: 1h
     labels:
       severity: warning
@@ -26,7 +26,7 @@ groups:
       description: Certificate of '{{$labels.label}}' not renewed since {{humanizeDuration $value}}, expiry date is 3 months
 
   - alert: ElasticsearchSnapshotNotPerformed
-    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp > 129600
+    expr: time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp > 648000
     for: 1h
     labels:
       severity: warning
