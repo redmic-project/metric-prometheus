@@ -9,6 +9,7 @@ services:
       - --storage.tsdb.path=${DATA_PATH}
       - --storage.tsdb.retention.time=${STORAGE_TSDB_RETENTION_TIME}
       - --storage.tsdb.retention.size=${STORAGE_TSDB_RETENTION_SIZE}
+      - --web.external-url=https://${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
     environment:
       CONFIG_PATH:
       INITIAL_CONFIG_FILENAME:
@@ -52,7 +53,7 @@ services:
         delay: ${UPDATE_DELAY:-1m}
       labels:
         traefik.frontend.auth.basic.users: ${UI_AUTH}
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-prometheus}.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: prometheus
         traefik.port: '${PORT}'
 
