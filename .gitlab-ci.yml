@@ -22,5 +22,3 @@ check-rules:
   variables:
     STACK: metric
     STATUS_CHECK_DELAY: 200
-  environment:
-    url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
