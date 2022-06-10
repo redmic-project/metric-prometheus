@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.9'
 
 services:
   prometheus:
@@ -20,8 +20,8 @@ volumes:
     driver: 'cloudstor:aws'
     driver_opts:
       backing: relocatable
-      size: ${PROMETHEUS_VOL_SIZE:-10}
-      ebstype: ${PROMETHEUS_VOL_EBS_TYPE:-gp2}
+      size: ${DATA_VOL_SIZE:-10}
+      ebstype: ${DATA_VOL_EBS_TYPE:-gp2}
 
 configs:
   node_rules:
