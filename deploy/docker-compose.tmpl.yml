@@ -52,10 +52,12 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.frontend.auth.basic.users: ${UI_AUTH}
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-        traefik.backend: prometheus
-        traefik.port: '${PORT}'
+        traefik.enable: 'true'
+        traefik.http.routers.prometheus.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.prometheus.rule: Host(`${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.middlewares.prometheus-auth.basicauth.users: ${TRAEFIK_AUTH}
+        traefik.http.routers.prometheus.middlewares: prometheus-auth
+        traefik.http.services.prometheus.loadbalancer.server.port: ${PORT}
 
 networks:
   metric-net:
