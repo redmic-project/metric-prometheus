@@ -52,7 +52,7 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.enable: 'true'
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
         traefik.http.routers.prometheus.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.prometheus.rule: Host(`${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.middlewares.prometheus-auth.basicauth.users: ${TRAEFIK_AUTH}
