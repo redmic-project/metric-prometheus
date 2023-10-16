@@ -18,6 +18,7 @@ services:
     networks:
       metric-net:
       traefik-net:
+      log-net:
     volumes:
       - data-vol:${DATA_PATH}
     configs:
@@ -68,6 +69,11 @@ networks:
   traefik-net:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
+    external: true
+
+  log-net:
+    name: ${LOG_NET_NAME:-log-net}
+    driver: ${LOG_NET_DRIVER:-overlay}
     external: true
 
 configs:
