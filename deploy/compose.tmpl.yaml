@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   prometheus:
     image: ${IMAGE_NAME:-prom/prometheus}:${IMAGE_TAG:-latest}
@@ -40,7 +38,7 @@ services:
       - source: kafka_rules
         target: /etc/prometheus/kafka.rules.yml
     healthcheck:
-      test: wget --spider -q http://localhost:${PORT}
+      test: wget --spider -q http://127.0.0.1:${PORT}
       interval: ${HEALTHCHECK_INTERVAL:-1m}
       timeout: ${HEALTHCHECK_TIMEOUT:-30s}
       retries: ${HEALTHCHECK_RETRIES:-10}
@@ -48,13 +46,16 @@ services:
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
+      placement:
+        constraints:
+          - ${PLACEMENT_CONSTRAINTS_NAME:-node.hostname} ${PLACEMENT_CONSTRAINTS_OPERATOR:-==} ${PLACEMENT_CONSTRAINTS_VALUE:-node}
       restart_policy:
         delay: ${RESTART_DELAY:-3s}
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
-        traefik.http.routers.prometheus.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.prometheus.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
         traefik.http.routers.prometheus.rule: Host(`${TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.middlewares.prometheus-auth.basicauth.users: ${TRAEFIK_AUTH}
         traefik.http.routers.prometheus.middlewares: prometheus-auth
