@@ -46,9 +46,6 @@ services:
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
-      placement:
-        constraints:
-          - ${PLACEMENT_CONSTRAINTS_NAME:-node.hostname} ${PLACEMENT_CONSTRAINTS_OPERATOR:-==} ${PLACEMENT_CONSTRAINTS_VALUE:-node}
       restart_policy:
         delay: ${RESTART_DELAY:-3s}
       update_config:
